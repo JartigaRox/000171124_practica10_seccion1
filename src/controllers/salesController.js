@@ -79,3 +79,29 @@ export const getAllSales = async (req, res) => {
     });
   }
 };
+
+// GET: Reporte de ventas por cliente
+export const getSalesReport = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.name, SUM(s.amount) AS total_sales
+       FROM sales s
+       JOIN customers c ON s.id_customer = c.id
+       GROUP BY c.name
+       ORDER BY total_sales DESC`
+    );
+    
+    res.status(200).json({
+      success: true,
+      data: result.rows,
+      count: result.rows.length,
+    });
+  } catch (error) {
+    console.error("Error obteniendo reporte de ventas:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error obteniendo reporte de ventas",
+      error: error.message,
+    });
+  }
+};
